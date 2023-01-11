@@ -3,6 +3,7 @@ let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
+const axios = require('axios').default;
 
 
 public_users.post("/register", (req,res) => {
@@ -25,7 +26,9 @@ public_users.post("/register", (req,res) => {
 // Get the book list available in the shop
 public_users.get('/',function (req, res) {
   //Write your code here
+  console.log(books)
   return res.send(JSON.stringify({books},null,4));
+  
 });
 
 // Get book details based on ISBN
@@ -66,5 +69,58 @@ public_users.get('/review/:isbn',function (req, res) {
  const isbn=req.params.isbn;
  return res.send(books[isbn].reviews)
 });
+
+
+
+// const req = axios.get("./booksdb.js");
+// console.log(req);
+// req.then(resp => {
+//     let booksDetails = resp.data;
+//     console.log(JSON.stringify(booksDetails,null,4))
+// })
+// .catch(err => {
+//     console.log(err.toString())
+//     //This will console log the error withe the code. eg. Error: Request failed with status code 404
+// });
+function getAllBooks() {
+  return new Promise((resolve, reject) => {
+  resolve(books);
+  });
+
+  }
+  getAllBooks();
+
+  function getByISBN(isbn) {
+    return new Promise((resolve, reject) => {
+    let isbnNumber = parseInt(isbn);
+    if (books[isbnNumber]) {
+    resolve(books[isbnNumber]);
+    } else {
+    reject({ status: 404, message: `ISBN ${isbn} not found` });
+    }
+    })
+    }
+    getByISBN(1)
+
+    function getByAuthor(author) {
+      return new Promise((resolve, reject) => {
+      let authorname = author;
+      if (books[author]) {
+      resolve(books[author]);
+      }
+      })
+      }
+     getByAuthor("Chinua Achebe")
+
+
+     function getByTitle(title) {
+      return new Promise((resolve, reject) => {
+      
+      if (books[title]) {
+      resolve(books[title]);
+      }
+      })
+      }
+     getByTitle("Fairy tales")
 
 module.exports.general = public_users;
